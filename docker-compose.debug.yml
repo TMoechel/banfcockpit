@@ -1,0 +1,46 @@
+# Please refer https://aka.ms/HTTPSinContainer on how to setup an https developer certificate for your ASP .NET Core service.
+
+version: '3.4'
+
+services:
+  cockpitapi:
+    image: cockpitapi
+    hostname: cockpitapi
+    build:
+      context: .
+      dockerfile: cockpit.api/Dockerfile
+    ports:
+      - 8080:80
+      - 4343:443
+    networks:
+      - futuranet
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=555
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+    volumes:
+      - ~/.vsdbg:/remote_debugger:rw
+      - ~/.aspnet/https:/https:ro
+
+  supplierservice:
+    image: supplierservice
+    hostname: supplierservice
+    build:
+      context: .
+      dockerfile: supplierservice/Dockerfile
+    ports:
+      - 8090:80
+      - 4344:443
+    networks:
+      - futuranet
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=555
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+    volumes:
+      - ~/.vsdbg:/remote_debugger:rw
+      - ~/.aspnet/https:/https:ro      
+networks: 
+  futuranet: {}
